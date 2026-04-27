@@ -1,0 +1,1168 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Huda Mohammed — Electrical Design Engineer</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --indigo: #1a0a3c;
+    --indigo-mid: #2d1560;
+    --pink: #ff2d78;
+    --cyan: #00f5ff;
+    --amber: #ffb700;
+    --white: #f0eeff;
+    --glass: rgba(255,255,255,0.05);
+    --glass-border: rgba(255,255,255,0.1);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--indigo);
+    color: var(--white);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    overflow-x: hidden;
+    cursor: none;
+  }
+
+  /* ── NOISE OVERLAY ── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.4;
+  }
+
+  /* ── CUSTOM CURSOR ── */
+  #cursor-dot {
+    position: fixed;
+    width: 8px; height: 8px;
+    background: var(--cyan);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 10000;
+    box-shadow: 0 0 12px var(--cyan), 0 0 24px var(--cyan);
+    transform: translate(-50%, -50%);
+    transition: transform 0.05s;
+  }
+  #cursor-ring {
+    position: fixed;
+    width: 36px; height: 36px;
+    border: 1.5px solid rgba(0,245,255,0.5);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9999;
+    transform: translate(-50%, -50%);
+    transition: all 0.15s ease;
+  }
+
+  /* ── SCROLLBAR ── */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: var(--indigo); }
+  ::-webkit-scrollbar-thumb { background: linear-gradient(var(--pink), var(--cyan)); border-radius: 2px; }
+
+  /* ── LOADING SCREEN ── */
+  #loader {
+    position: fixed;
+    inset: 0;
+    background: var(--indigo);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 99999;
+    animation: loaderFade 0.6s ease 2.2s forwards;
+  }
+  @keyframes loaderFade { to { opacity: 0; visibility: hidden; pointer-events: none; } }
+
+  .loader-initials {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(5rem, 12vw, 9rem);
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--pink), var(--cyan), var(--amber));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: shimmerText 1.5s ease infinite alternate;
+    letter-spacing: -0.02em;
+  }
+  @keyframes shimmerText {
+    from { filter: brightness(1); }
+    to { filter: brightness(1.4) drop-shadow(0 0 20px rgba(0,245,255,0.4)); }
+  }
+  .loader-bar-wrap {
+    width: min(300px, 80vw);
+    height: 3px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 2px;
+    margin-top: 2.5rem;
+    overflow: hidden;
+  }
+  .loader-bar {
+    height: 100%;
+    width: 0;
+    background: linear-gradient(90deg, var(--pink), var(--cyan), var(--amber));
+    border-radius: 2px;
+    animation: loadFill 1.8s ease 0.3s forwards;
+  }
+  @keyframes loadFill { to { width: 100%; } }
+
+  /* ── CANVAS ── */
+  #particle-canvas {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 1000;
+    padding: 0 5vw;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(26,10,60,0.7);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--glass-border);
+    transform: translateY(-100%);
+    animation: navSlide 0.7s cubic-bezier(0.22,1,0.36,1) 2.8s forwards;
+  }
+  @keyframes navSlide { to { transform: translateY(0); } }
+
+  .nav-logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 1.2rem;
+    background: linear-gradient(90deg, var(--pink), var(--cyan));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: -0.01em;
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 2rem;
+    list-style: none;
+  }
+  .nav-links a {
+    color: rgba(240,238,255,0.7);
+    text-decoration: none;
+    font-size: 0.875rem;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    position: relative;
+    transition: color 0.2s;
+  }
+  .nav-links a::after {
+    content: '';
+    position: absolute;
+    bottom: -4px; left: 0;
+    width: 0; height: 1.5px;
+    background: linear-gradient(90deg, var(--pink), var(--cyan));
+    transition: width 0.3s ease;
+  }
+  .nav-links a:hover { color: var(--white); }
+  .nav-links a:hover::after { width: 100%; }
+
+  /* ── SECTIONS ── */
+  section {
+    position: relative;
+    z-index: 1;
+    padding: 8rem 5vw;
+  }
+
+  .section-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--cyan);
+    margin-bottom: 0.75rem;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.6s ease;
+  }
+  .section-label.visible { opacity: 1; transform: translateY(0); }
+
+  .section-title {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(2rem, 4vw, 3rem);
+    font-weight: 800;
+    line-height: 1.1;
+    margin-bottom: 3rem;
+    opacity: 0;
+    transform: translateY(30px);
+    transition: all 0.7s ease 0.1s;
+  }
+  .section-title.visible { opacity: 1; transform: translateY(0); }
+
+  /* ── HERO ── */
+  #hero {
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+    gap: 4rem;
+    padding-top: 9rem;
+  }
+
+  .hero-left { opacity: 0; animation: heroLeft 1s ease 3s forwards; }
+  @keyframes heroLeft { to { opacity: 1; } }
+
+  .avail-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.35rem 0.85rem;
+    background: rgba(0,245,255,0.1);
+    border: 1px solid rgba(0,245,255,0.3);
+    border-radius: 100px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--cyan);
+    margin-bottom: 1.5rem;
+    letter-spacing: 0.05em;
+  }
+  .avail-dot {
+    width: 6px; height: 6px;
+    background: var(--cyan);
+    border-radius: 50%;
+    animation: pulse 1.5s ease infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.7); }
+  }
+
+  .hero-name {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(2.8rem, 5.5vw, 4.5rem);
+    font-weight: 800;
+    line-height: 1.0;
+    letter-spacing: -0.03em;
+    background: linear-gradient(135deg, var(--white) 30%, var(--pink) 60%, var(--cyan) 80%);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: nameShimmer 4s linear infinite;
+    margin-bottom: 0.75rem;
+  }
+  @keyframes nameShimmer {
+    from { background-position: 0% center; }
+    to { background-position: 200% center; }
+  }
+
+  .hero-title {
+    font-size: 1rem;
+    color: rgba(240,238,255,0.6);
+    font-weight: 300;
+    letter-spacing: 0.02em;
+    margin-bottom: 1.75rem;
+  }
+
+  .hero-cta {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-top: 2rem;
+  }
+  .btn-primary {
+    padding: 0.75rem 1.75rem;
+    background: linear-gradient(135deg, var(--pink), #c2185b);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: none;
+    text-decoration: none;
+    transition: all 0.2s;
+    box-shadow: 0 0 20px rgba(255,45,120,0.3);
+  }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 4px 30px rgba(255,45,120,0.5); }
+  .btn-outline {
+    padding: 0.75rem 1.75rem;
+    background: transparent;
+    color: var(--white);
+    border: 1px solid var(--glass-border);
+    border-radius: 6px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: none;
+    text-decoration: none;
+    transition: all 0.2s;
+  }
+  .btn-outline:hover { border-color: var(--cyan); color: var(--cyan); transform: translateY(-2px); }
+
+  /* ── HERO RIGHT — 3D CARD ── */
+  .hero-right {
+    display: flex;
+    justify-content: center;
+    opacity: 0;
+    animation: heroRight 1s ease 3.3s forwards;
+  }
+  @keyframes heroRight { to { opacity: 1; } }
+
+  .card-3d-wrap {
+    perspective: 1000px;
+    width: 280px;
+    height: 340px;
+  }
+  .card-3d {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    transform-style: preserve-3d;
+    animation: cardFloat 6s ease-in-out infinite;
+    border-radius: 20px;
+  }
+  @keyframes cardFloat {
+    0%, 100% { transform: rotateY(-8deg) rotateX(4deg) translateY(0); }
+    50% { transform: rotateY(8deg) rotateX(-4deg) translateY(-15px); }
+  }
+  .card-3d-inner {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, rgba(45,21,96,0.9), rgba(26,10,60,0.95));
+    border: 1px solid rgba(0,245,255,0.2);
+    border-radius: 20px;
+    padding: 2.5rem 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    backdrop-filter: blur(20px);
+    box-shadow: 0 30px 80px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1);
+  }
+
+  .card-orb {
+    position: absolute;
+    width: 160px; height: 160px;
+    background: radial-gradient(circle, rgba(0,245,255,0.15), transparent 70%);
+    border-radius: 50%;
+    top: -40px; right: -40px;
+    animation: orbPulse 3s ease infinite alternate;
+  }
+  @keyframes orbPulse {
+    from { transform: scale(1); opacity: 0.6; }
+    to { transform: scale(1.3); opacity: 1; }
+  }
+
+  .card-avatar-ring {
+    position: relative;
+    margin-bottom: 1.25rem;
+  }
+  .ring-spin {
+    position: absolute;
+    inset: -12px;
+    border-radius: 50%;
+    border: 2px dashed rgba(0,245,255,0.4);
+    animation: spin 10s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .ring-spin-2 {
+    position: absolute;
+    inset: -20px;
+    border-radius: 50%;
+    border: 1.5px dashed rgba(255,45,120,0.25);
+    animation: spin 15s linear infinite reverse;
+  }
+
+  .card-initials {
+    width: 80px; height: 80px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--pink), var(--indigo-mid), var(--cyan));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Syne', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: white;
+    box-shadow: 0 0 30px rgba(255,45,120,0.4);
+    position: relative;
+  }
+
+  .card-name { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1rem; margin-bottom: 0.25rem; }
+  .card-role { font-size: 0.75rem; color: rgba(240,238,255,0.5); margin-bottom: 1.5rem; }
+
+  .card-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.75rem;
+    width: 100%;
+  }
+  .stat {
+    text-align: center;
+    padding: 0.5rem;
+    background: rgba(255,255,255,0.04);
+    border-radius: 8px;
+    border: 1px solid rgba(255,255,255,0.06);
+  }
+  .stat-val {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: var(--cyan);
+  }
+  .stat-lbl { font-size: 0.6rem; color: rgba(240,238,255,0.4); line-height: 1.3; }
+
+  /* ── MARQUEE ── */
+  .marquee-wrap {
+    overflow: hidden;
+    padding: 1.5rem 0;
+    border-top: 1px solid var(--glass-border);
+    border-bottom: 1px solid var(--glass-border);
+    background: rgba(255,255,255,0.02);
+    position: relative;
+    z-index: 1;
+  }
+  .marquee-track {
+    display: flex;
+    gap: 2rem;
+    animation: marquee 30s linear infinite;
+    width: max-content;
+  }
+  @keyframes marquee { to { transform: translateX(-50%); } }
+  .marquee-item {
+    white-space: nowrap;
+    font-size: 0.8rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(240,238,255,0.3);
+    font-weight: 500;
+  }
+  .marquee-item span { color: var(--pink); margin: 0 1rem; }
+
+  /* ── SKILLS ── */
+  #skills { padding-bottom: 4rem; }
+
+  .skills-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem 4rem; margin-bottom: 3rem; }
+
+  .skill-item { opacity: 0; transform: translateY(20px); transition: all 0.5s ease; }
+  .skill-item.visible { opacity: 1; transform: translateY(0); }
+
+  .skill-header { display: flex; justify-content: space-between; margin-bottom: 0.4rem; }
+  .skill-name { font-size: 0.875rem; font-weight: 500; }
+  .skill-pct { font-size: 0.75rem; color: var(--cyan); font-family: 'Syne', sans-serif; font-weight: 700; }
+
+  .skill-bar {
+    height: 4px;
+    background: rgba(255,255,255,0.07);
+    border-radius: 2px;
+    overflow: hidden;
+    position: relative;
+  }
+  .skill-fill {
+    height: 100%;
+    border-radius: 2px;
+    background: linear-gradient(90deg, var(--pink), var(--cyan));
+    width: 0;
+    transition: width 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+  }
+  .skill-fill::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent 60%, rgba(255,255,255,0.5) 80%, transparent 100%);
+    animation: shimmerBar 2s ease 1.5s forwards;
+    opacity: 0;
+  }
+  @keyframes shimmerBar {
+    0% { transform: translateX(-100%); opacity: 1; }
+    100% { transform: translateX(200%); opacity: 0; }
+  }
+
+  .tech-chips { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-top: 2rem; }
+  .chip {
+    padding: 0.35rem 0.85rem;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 100px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: rgba(240,238,255,0.7);
+    transition: all 0.2s;
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  .chip.visible { opacity: 1; transform: translateY(0); }
+  .chip:hover {
+    background: rgba(0,245,255,0.08);
+    border-color: rgba(0,245,255,0.3);
+    color: var(--cyan);
+    transform: translateY(-3px);
+  }
+
+  /* ── EXPERIENCE ── */
+  .timeline { position: relative; padding-left: 2rem; }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 2px;
+    background: linear-gradient(to bottom, var(--pink), var(--cyan), var(--amber));
+    border-radius: 2px;
+    animation: timelineGrow 2s ease;
+  }
+  @keyframes timelineGrow { from { height: 0; } }
+
+  .exp-card {
+    position: relative;
+    margin-bottom: 3rem;
+    padding: 1.75rem;
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    opacity: 0;
+    transform: translateX(-30px);
+    transition: all 0.6s ease;
+    backdrop-filter: blur(10px);
+  }
+  .exp-card.visible { opacity: 1; transform: translateX(0); }
+  .exp-card:hover {
+    transform: translateX(8px);
+    border-color: rgba(0,245,255,0.2);
+    box-shadow: 0 0 30px rgba(0,245,255,0.07), -4px 0 0 var(--cyan);
+  }
+  .exp-card::before {
+    content: '';
+    position: absolute;
+    left: -2.6rem;
+    top: 1.75rem;
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: var(--pink);
+    box-shadow: 0 0 10px var(--pink);
+    border: 2px solid var(--indigo);
+  }
+
+  .exp-top { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.4rem; }
+  .exp-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1.05rem; }
+  .exp-period {
+    font-size: 0.75rem;
+    padding: 0.2rem 0.75rem;
+    background: rgba(255,183,0,0.1);
+    border: 1px solid rgba(255,183,0,0.3);
+    border-radius: 100px;
+    color: var(--amber);
+  }
+  .exp-company { font-size: 0.875rem; color: var(--cyan); margin-bottom: 1rem; font-weight: 500; }
+  .exp-desc { font-size: 0.85rem; color: rgba(240,238,255,0.6); line-height: 1.7; }
+  .exp-desc li { margin-bottom: 0.4rem; list-style: none; padding-left: 1rem; position: relative; }
+  .exp-desc li::before { content: '→'; position: absolute; left: 0; color: var(--pink); }
+
+  .badge-row { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 1rem; }
+  .badge {
+    padding: 0.2rem 0.6rem;
+    background: rgba(255,45,120,0.1);
+    border: 1px solid rgba(255,45,120,0.2);
+    border-radius: 4px;
+    font-size: 0.7rem;
+    color: var(--pink);
+    font-weight: 500;
+  }
+
+  /* ── PROJECTS ── */
+  .projects-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+
+  .proj-card {
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    padding: 1.75rem;
+    opacity: 0;
+    transform: translateY(30px);
+    transition: all 0.5s ease;
+    position: relative;
+    overflow: hidden;
+    backdrop-filter: blur(10px);
+  }
+  .proj-card.visible { opacity: 1; transform: translateY(0); }
+  .proj-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--pink), var(--cyan));
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.4s ease;
+  }
+  .proj-card:hover::before { transform: scaleX(1); }
+  .proj-card:hover { transform: translateY(-6px); border-color: rgba(255,255,255,0.15); }
+
+  .proj-emoji { font-size: 2rem; margin-bottom: 0.75rem; }
+  .proj-name { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1rem; margin-bottom: 0.5rem; }
+  .proj-desc { font-size: 0.825rem; color: rgba(240,238,255,0.55); line-height: 1.6; margin-bottom: 1rem; }
+  .proj-tags { display: flex; flex-wrap: wrap; gap: 0.3rem; }
+  .proj-tag {
+    padding: 0.15rem 0.5rem;
+    background: rgba(0,245,255,0.07);
+    border: 1px solid rgba(0,245,255,0.15);
+    border-radius: 4px;
+    font-size: 0.65rem;
+    color: var(--cyan);
+  }
+
+  /* ── EDUCATION ── */
+  .edu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+
+  .edu-card {
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    padding: 1.75rem;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.6s ease;
+    backdrop-filter: blur(10px);
+    position: relative;
+    overflow: hidden;
+  }
+  .edu-card::before {
+    content: '';
+    position: absolute;
+    top: -40px; right: -40px;
+    width: 100px; height: 100px;
+    background: radial-gradient(circle, rgba(255,45,120,0.1), transparent 70%);
+    border-radius: 50%;
+  }
+  .edu-card.visible { opacity: 1; transform: translateY(0); }
+
+  .edu-degree { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1.05rem; margin-bottom: 0.4rem; }
+  .edu-school { font-size: 0.875rem; color: var(--cyan); margin-bottom: 0.5rem; }
+  .edu-sub { font-size: 0.8rem; color: rgba(240,238,255,0.45); }
+
+  .lang-badges { display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 2rem; }
+  .lang-badge {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 1rem 1.5rem;
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    border-radius: 10px;
+    opacity: 0;
+    transform: translateY(15px);
+    transition: all 0.5s ease;
+  }
+  .lang-badge.visible { opacity: 1; transform: translateY(0); }
+  .lang-name { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.95rem; }
+  .lang-level {
+    font-size: 0.7rem;
+    padding: 0.15rem 0.6rem;
+    border-radius: 100px;
+    font-weight: 500;
+  }
+  .lang-level.native { background: rgba(255,183,0,0.15); color: var(--amber); border: 1px solid rgba(255,183,0,0.3); }
+  .lang-level.proficient { background: rgba(0,245,255,0.1); color: var(--cyan); border: 1px solid rgba(0,245,255,0.3); }
+
+  /* ── CONTACT ── */
+  #contact { padding-bottom: 6rem; }
+  .contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center; }
+
+  .contact-cards { display: grid; gap: 0.75rem; }
+  .contact-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 1.25rem;
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    border-radius: 10px;
+    opacity: 0;
+    transform: translateX(-20px);
+    transition: all 0.5s ease;
+    text-decoration: none;
+    color: var(--white);
+    backdrop-filter: blur(10px);
+  }
+  .contact-item.visible { opacity: 1; transform: translateX(0); }
+  .contact-item:hover { transform: translateX(8px); border-color: rgba(0,245,255,0.3); }
+
+  .contact-icon { font-size: 1.2rem; width: 36px; }
+  .contact-label { font-size: 0.7rem; color: rgba(240,238,255,0.4); text-transform: uppercase; letter-spacing: 0.1em; }
+  .contact-val { font-size: 0.9rem; font-weight: 500; }
+
+  .contact-avatar-wrap { display: flex; justify-content: center; position: relative; }
+  .ripple-container {
+    position: relative;
+    width: 160px; height: 160px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .ripple {
+    position: absolute;
+    border-radius: 50%;
+    border: 1.5px solid rgba(0,245,255,0.25);
+    animation: rippleExpand 3s ease infinite;
+  }
+  .ripple:nth-child(1) { width: 100%; height: 100%; animation-delay: 0s; }
+  .ripple:nth-child(2) { width: 140%; height: 140%; animation-delay: 1s; }
+  .ripple:nth-child(3) { width: 180%; height: 180%; animation-delay: 2s; }
+  @keyframes rippleExpand {
+    0% { opacity: 0.6; transform: scale(0.8); }
+    100% { opacity: 0; transform: scale(1.2); }
+  }
+  .contact-big-initials {
+    width: 90px; height: 90px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--pink), var(--indigo-mid), var(--cyan));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Syne', sans-serif;
+    font-size: 1.8rem;
+    font-weight: 800;
+    box-shadow: 0 0 40px rgba(255,45,120,0.35);
+    z-index: 1;
+    position: relative;
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 900px) {
+    #hero { grid-template-columns: 1fr; text-align: center; }
+    .hero-right { margin-top: 3rem; }
+    .hero-cta { justify-content: center; }
+    .avail-tag { margin: 0 auto 1.5rem; }
+    .skills-grid { grid-template-columns: 1fr; }
+    .projects-grid { grid-template-columns: 1fr 1fr; }
+    .edu-grid { grid-template-columns: 1fr; }
+    .contact-grid { grid-template-columns: 1fr; }
+    .nav-links { display: none; }
+  }
+  @media (max-width: 560px) {
+    .projects-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Loader -->
+<div id="loader">
+  <div class="loader-initials">HM</div>
+  <div class="loader-bar-wrap"><div class="loader-bar"></div></div>
+</div>
+
+<!-- Cursor -->
+<div id="cursor-dot"></div>
+<div id="cursor-ring"></div>
+
+<!-- Particle Canvas -->
+<canvas id="particle-canvas"></canvas>
+
+<!-- Nav -->
+<nav>
+  <div class="nav-logo">Huda Mohammed</div>
+  <ul class="nav-links">
+    <li><a href="#hero">Home</a></li>
+    <li><a href="#skills">Skills</a></li>
+    <li><a href="#experience">Experience</a></li>
+    <li><a href="#projects">Projects</a></li>
+    <li><a href="#education">Education</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+</nav>
+
+<!-- Hero -->
+<section id="hero">
+  <div class="hero-left">
+    <div class="avail-tag"><span class="avail-dot"></span> Available for Immediate Joining</div>
+    <h1 class="hero-name">Huda<br>Mohammed</h1>
+    <p class="hero-title">Electrical Design Engineer — LV Panels | Power Distribution | Solar PV</p>
+    <p style="font-size:0.875rem; color:rgba(240,238,255,0.5); max-width:480px;">
+      8+ years delivering cost-efficient, code-compliant electrical solutions across Sudan's construction and industrial sectors. Open to relocation across Saudi Arabia.
+    </p>
+    <div class="hero-cta">
+      <a href="#contact" class="btn-primary">Get in Touch</a>
+      <a href="#experience" class="btn-outline">View Experience</a>
+    </div>
+  </div>
+  <div class="hero-right">
+    <div class="card-3d-wrap">
+      <div class="card-3d">
+        <div class="card-3d-inner">
+          <div class="card-orb"></div>
+          <div class="card-avatar-ring">
+            <div class="ring-spin"></div>
+            <div class="ring-spin-2"></div>
+            <div class="card-initials">HM</div>
+          </div>
+          <div class="card-name">Huda Mohammed</div>
+          <div class="card-role">Electrical Design Engineer</div>
+          <div class="card-stats">
+            <div class="stat"><div class="stat-val">8+</div><div class="stat-lbl">Years Exp.</div></div>
+            <div class="stat"><div class="stat-val">15+</div><div class="stat-lbl">Solar Projects</div></div>
+            <div class="stat"><div class="stat-val">95%</div><div class="stat-lbl">On-Time Rate</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Marquee -->
+<div class="marquee-wrap">
+  <div class="marquee-track">
+    <span class="marquee-item">AutoCAD Electrical<span>✦</span></span>
+    <span class="marquee-item">ETAP<span>✦</span></span>
+    <span class="marquee-item">PVsyst<span>✦</span></span>
+    <span class="marquee-item">Dialux<span>✦</span></span>
+    <span class="marquee-item">Revit MEP<span>✦</span></span>
+    <span class="marquee-item">IEC 60364<span>✦</span></span>
+    <span class="marquee-item">NEC Standards<span>✦</span></span>
+    <span class="marquee-item">Solar PV Design<span>✦</span></span>
+    <span class="marquee-item">LV Panel Design<span>✦</span></span>
+    <span class="marquee-item">SCADA / PLC<span>✦</span></span>
+    <span class="marquee-item">Twredat Engineering<span>✦</span></span>
+    <span class="marquee-item">Federal Governance Chamber<span>✦</span></span>
+    <span class="marquee-item">Al Neelain University<span>✦</span></span>
+    <!-- duplicate for seamless loop -->
+    <span class="marquee-item">AutoCAD Electrical<span>✦</span></span>
+    <span class="marquee-item">ETAP<span>✦</span></span>
+    <span class="marquee-item">PVsyst<span>✦</span></span>
+    <span class="marquee-item">Dialux<span>✦</span></span>
+    <span class="marquee-item">Revit MEP<span>✦</span></span>
+    <span class="marquee-item">IEC 60364<span>✦</span></span>
+    <span class="marquee-item">NEC Standards<span>✦</span></span>
+    <span class="marquee-item">Solar PV Design<span>✦</span></span>
+    <span class="marquee-item">LV Panel Design<span>✦</span></span>
+    <span class="marquee-item">SCADA / PLC<span>✦</span></span>
+    <span class="marquee-item">Twredat Engineering<span>✦</span></span>
+    <span class="marquee-item">Federal Governance Chamber<span>✦</span></span>
+    <span class="marquee-item">Al Neelain University<span>✦</span></span>
+  </div>
+</div>
+
+<!-- Skills -->
+<section id="skills">
+  <p class="section-label">Expertise</p>
+  <h2 class="section-title">Core Skills</h2>
+  <div class="skills-grid">
+    <div class="skill-item"><div class="skill-header"><span class="skill-name">LV Panel Design (MDB/SMDB/MCC)</span><span class="skill-pct">95%</span></div><div class="skill-bar"><div class="skill-fill" data-pct="95"></div></div></div>
+    <div class="skill-item"><div class="skill-header"><span class="skill-name">AutoCAD Electrical</span><span class="skill-pct">95%</span></div><div class="skill-bar"><div class="skill-fill" data-pct="95"></div></div></div>
+    <div class="skill-item"><div class="skill-header"><span class="skill-name">Solar PV System Design (PVsyst)</span><span class="skill-pct">90%</span></div><div class="skill-bar"><div class="skill-fill" data-pct="90"></div></div></div>
+    <div class="skill-item"><div class="skill-header"><span class="skill-name">ETAP — Protection Coordination</span><span class="skill-pct">88%</span></div><div class="skill-bar"><div class="skill-fill" data-pct="88"></div></div></div>
+    <div class="skill-item"><div class="skill-header"><span class="skill-name">Cable Sizing & Voltage Drop</span><span class="skill-pct">92%</span></div><div class="skill-bar"><div class="skill-fill" data-pct="92"></div></div></div>
+    <div class="skill-item"><div class="skill-header"><span class="skill-name">Lighting Design (Dialux)</span><span class="skill-pct">85%</span></div><div class="skill-bar"><div class="skill-fill" data-pct="85"></div></div></div>
+    <div class="skill-item"><div class="skill-header"><span class="skill-name">Revit MEP</span><span class="skill-pct">80%</span></div><div class="skill-bar"><div class="skill-fill" data-pct="80"></div></div></div>
+    <div class="skill-item"><div class="skill-header"><span class="skill-name">PLC & SCADA Integration</span><span class="skill-pct">78%</span></div><div class="skill-bar"><div class="skill-fill" data-pct="78"></div></div></div>
+  </div>
+  <div class="tech-chips">
+    <span class="chip">IEC 60364</span><span class="chip">NEC</span><span class="chip">BS 7671</span>
+    <span class="chip">Saudi SBC</span><span class="chip">MCB / MCCB / ACB</span><span class="chip">VFDs</span>
+    <span class="chip">Fire Alarm</span><span class="chip">CCTV</span><span class="chip">Data Networks</span>
+    <span class="chip">UPS</span><span class="chip">BMS</span><span class="chip">Load Calculation</span>
+    <span class="chip">SLD & Shop Drawings</span><span class="chip">FAT & Commissioning</span>
+    <span class="chip">Power Factor Correction</span><span class="chip">Short Circuit Analysis</span>
+  </div>
+</section>
+
+<!-- Experience -->
+<section id="experience">
+  <p class="section-label">Career</p>
+  <h2 class="section-title">Professional Experience</h2>
+  <div class="timeline">
+
+    <div class="exp-card">
+      <div class="exp-top">
+        <div class="exp-title">Electrical Design & Sales Engineer</div>
+        <div class="exp-period">Dec 2019 – Jan 2024</div>
+      </div>
+      <div class="exp-company">Twredat Engineering & Trading Co. Ltd · Sudan</div>
+      <ul class="exp-desc">
+        <li>Designed and reviewed LV electrical panels (MDB, SMDB, MCC) up to 2,000A for 10+ concurrent projects — on-time delivery rate exceeded 95%.</li>
+        <li>Produced SLDs, shop drawings, and schematics using AutoCAD Electrical, reducing drawing revision cycles by 30%.</li>
+        <li>Reduced material costs by 15% through design optimization and strategic component selection.</li>
+        <li>Delivered 15+ solar PV systems integrated with LV distribution panels for residential and agricultural irrigation projects.</li>
+        <li>Improved sales conversion rate by 25% through optimized technical proposals.</li>
+      </ul>
+      <div class="badge-row">
+        <span class="badge">LV Panels up to 2,000A</span>
+        <span class="badge">15+ Solar PV Projects</span>
+        <span class="badge">AutoCAD Electrical</span>
+        <span class="badge">PVsyst</span>
+        <span class="badge">IEC 60364</span>
+      </div>
+    </div>
+
+    <div class="exp-card">
+      <div class="exp-top">
+        <div class="exp-title">Electrical Design Engineer</div>
+        <div class="exp-period">Sep 2017 – Dec 2019</div>
+      </div>
+      <div class="exp-company">Twredat Engineering & Trading Co. Ltd · Sudan</div>
+      <ul class="exp-desc">
+        <li>Designed electrical control panels and power distribution systems for industrial facilities.</li>
+        <li>Conducted short circuit analysis and load balancing studies using ETAP, reducing system faults by 20%.</li>
+        <li>Supervised panel manufacturing, wiring, and assembly ensuring IEC compliance throughout production.</li>
+        <li>Executed testing, FAT, and commissioning for 15+ projects with full technical documentation.</li>
+      </ul>
+      <div class="badge-row">
+        <span class="badge">ETAP</span>
+        <span class="badge">Short Circuit Analysis</span>
+        <span class="badge">FAT & Commissioning</span>
+        <span class="badge">Power Factor Correction</span>
+      </div>
+    </div>
+
+    <div class="exp-card">
+      <div class="exp-top">
+        <div class="exp-title">Electrical Engineer — Maintenance</div>
+        <div class="exp-period">Sep 2016 – Sep 2017</div>
+      </div>
+      <div class="exp-company">Federal Governance Chamber · Sudan</div>
+      <ul class="exp-desc">
+        <li>Implemented preventive, corrective, and predictive maintenance programs for government electrical systems.</li>
+        <li>Improved system uptime by 30% through structured maintenance planning and root-cause fault analysis.</li>
+        <li>Prepared technical reports, maintenance logs, and compliance documentation.</li>
+      </ul>
+      <div class="badge-row">
+        <span class="badge">+30% System Uptime</span>
+        <span class="badge">Preventive Maintenance</span>
+        <span class="badge">Government Facilities</span>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- Projects -->
+<section id="projects">
+  <p class="section-label">Portfolio</p>
+  <h2 class="section-title">Key Projects</h2>
+  <div class="projects-grid">
+    <div class="proj-card">
+      <div class="proj-emoji">⚡</div>
+      <div class="proj-name">Industrial MDB/MCC Panel Design</div>
+      <div class="proj-desc">Full LV distribution panel design up to 2,000A for construction and industrial facilities, compliant with IEC 60364.</div>
+      <div class="proj-tags"><span class="proj-tag">AutoCAD Electrical</span><span class="proj-tag">IEC 60364</span><span class="proj-tag">MCCB/ACB</span></div>
+    </div>
+    <div class="proj-card">
+      <div class="proj-emoji">☀️</div>
+      <div class="proj-name">Solar PV Agricultural Irrigation Systems</div>
+      <div class="proj-desc">15+ solar PV systems designed using PVsyst, integrated with LV distribution panels for residential and agricultural projects.</div>
+      <div class="proj-tags"><span class="proj-tag">PVsyst</span><span class="proj-tag">Solar PV</span><span class="proj-tag">LV Integration</span></div>
+    </div>
+    <div class="proj-card">
+      <div class="proj-emoji">🔬</div>
+      <div class="proj-name">Short Circuit & Protection Coordination</div>
+      <div class="proj-desc">ETAP-based short circuit analysis and load balancing studies resulting in 20% reduction in system faults.</div>
+      <div class="proj-tags"><span class="proj-tag">ETAP</span><span class="proj-tag">Protection</span><span class="proj-tag">Load Analysis</span></div>
+    </div>
+    <div class="proj-card">
+      <div class="proj-emoji">💡</div>
+      <div class="proj-name">Lighting Design — Indoor & Outdoor</div>
+      <div class="proj-desc">Comprehensive lighting design using Dialux for commercial and government buildings, meeting international standards.</div>
+      <div class="proj-tags"><span class="proj-tag">Dialux</span><span class="proj-tag">Lighting</span><span class="proj-tag">Energy Efficiency</span></div>
+    </div>
+    <div class="proj-card">
+      <div class="proj-emoji">🏗️</div>
+      <div class="proj-name">Government Facility Maintenance Program</div>
+      <div class="proj-desc">Structured preventive, corrective, and predictive maintenance achieving 30% improvement in electrical system uptime.</div>
+      <div class="proj-tags"><span class="proj-tag">Maintenance</span><span class="proj-tag">+30% Uptime</span><span class="proj-tag">Root Cause Analysis</span></div>
+    </div>
+    <div class="proj-card">
+      <div class="proj-emoji">🤖</div>
+      <div class="proj-name">PLC & SCADA Integration</div>
+      <div class="proj-desc">Integration of PLC and SCADA systems for industrial automation and remote monitoring of electrical installations.</div>
+      <div class="proj-tags"><span class="proj-tag">PLC</span><span class="proj-tag">SCADA</span><span class="proj-tag">Automation</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- Education -->
+<section id="education">
+  <p class="section-label">Academic Background</p>
+  <h2 class="section-title">Education & Certifications</h2>
+  <div class="edu-grid">
+    <div class="edu-card">
+      <div class="edu-degree">Master's Degree</div>
+      <div class="edu-school">Control Systems Engineering</div>
+      <div class="edu-sub">Al Neelain University · Sudan</div>
+    </div>
+    <div class="edu-card">
+      <div class="edu-degree">B.Sc. Electrical & Electronic Engineering</div>
+      <div class="edu-school">Jordanian Sudanese College · Sudan</div>
+      <div class="edu-sub">Foundation in power systems, electronics & control</div>
+    </div>
+  </div>
+  <div style="margin-top: 2rem;">
+    <p class="section-label" style="opacity:1; transform:none; margin-bottom: 1rem;">Certifications</p>
+    <div class="tech-chips">
+      <span class="chip" style="border-color: rgba(255,183,0,0.3); color: var(--amber);">🏅 Certified AI Solar Professional (CASP) 2026</span>
+      <span class="chip">AutoCAD Electrical — Professional</span>
+      <span class="chip">PLC & SCADA Systems</span>
+      <span class="chip">Electrical Installations Design</span>
+      <span class="chip">Solar Pumping Systems Design</span>
+    </div>
+  </div>
+  <div style="margin-top: 2.5rem;">
+    <p class="section-label" style="opacity:1; transform:none; margin-bottom: 1rem;">Languages</p>
+    <div class="lang-badges">
+      <div class="lang-badge"><span class="lang-name">Arabic</span><span class="lang-level native">Native</span></div>
+      <div class="lang-badge"><span class="lang-name">English</span><span class="lang-level proficient">Professional</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- Contact -->
+<section id="contact">
+  <p class="section-label">Let's Connect</p>
+  <h2 class="section-title">Get in Touch</h2>
+  <div class="contact-grid">
+    <div class="contact-cards">
+      <a href="mailto:hudamohammedahmed843@gmail.com" class="contact-item">
+        <div class="contact-icon">📧</div>
+        <div><div class="contact-label">Email</div><div class="contact-val">hudamohammedahmed843@gmail.com</div></div>
+      </a>
+      <a href="tel:+966542739974" class="contact-item">
+        <div class="contact-icon">📱</div>
+        <div><div class="contact-label">Phone</div><div class="contact-val">+966 542 739 974</div></div>
+      </a>
+      <div class="contact-item">
+        <div class="contact-icon">📍</div>
+        <div><div class="contact-label">Location</div><div class="contact-val">Saudi Arabia · Open to Relocation</div></div>
+      </div>
+      <a href="https://linkedin.com/in/huda-mohammed-ahmed-54ab24369" target="_blank" class="contact-item">
+        <div class="contact-icon">💼</div>
+        <div><div class="contact-label">LinkedIn</div><div class="contact-val">huda-mohammed-ahmed-54ab24369</div></div>
+      </a>
+      <div class="contact-item">
+        <div class="contact-icon">🟢</div>
+        <div><div class="contact-label">Availability</div><div class="contact-val">Available for Immediate Joining</div></div>
+      </div>
+    </div>
+    <div class="contact-avatar-wrap">
+      <div class="ripple-container">
+        <div class="ripple"></div>
+        <div class="ripple"></div>
+        <div class="ripple"></div>
+        <div class="contact-big-initials">HM</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+// ── CURSOR ──
+const dot = document.getElementById('cursor-dot');
+const ring = document.getElementById('cursor-ring');
+let mx = 0, my = 0, rx = 0, ry = 0;
+document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; dot.style.left = mx + 'px'; dot.style.top = my + 'px'; });
+function animRing() {
+  rx += (mx - rx) * 0.12;
+  ry += (my - ry) *.12;
+  ring.style.left = rx + 'px';
+  ring.style.top = ry + 'px';
+  requestAnimationFrame(animRing);
+}
+animRing();
+document.querySelectorAll('a, button, .proj-card, .exp-card').forEach(el => {
+  el.addEventListener('mouseenter', () => ring.style.transform = 'translate(-50%,-50%) scale(1.5)');
+  el.addEventListener('mouseleave', () => ring.style.transform = 'translate(-50%,-50%) scale(1)');
+});
+
+// ── PARTICLE CANVAS ──
+const canvas = document.getElementById('particle-canvas');
+const ctx = canvas.getContext('2d');
+let W, H, pts = [];
+const COLORS = ['rgba(0,245,255,', 'rgba(255,45,120,', 'rgba(255,183,0,'];
+
+function resize() {
+  W = canvas.width = window.innerWidth;
+  H = canvas.height = window.innerHeight;
+}
+resize();
+window.addEventListener('resize', resize);
+
+function mkPt() {
+  return {
+    x: Math.random() * W,
+    y: Math.random() * H,
+    vx: (Math.random() - 0.5) * 0.4,
+    vy: (Math.random() - 0.5) * 0.4,
+    r: Math.random() * 2 + 1,
+    c: COLORS[Math.floor(Math.random() * COLORS.length)]
+  };
+}
+for (let i = 0; i < 90; i++) pts.push(mkPt());
+
+function draw() {
+  ctx.clearRect(0, 0, W, H);
+  for (let i = 0; i < pts.length; i++) {
+    const p = pts[i];
+    p.x += p.vx; p.y += p.vy;
+    if (p.x < 0 || p.x > W) p.vx *= -1;
+    if (p.y < 0 || p.y > H) p.vy *= -1;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+    ctx.fillStyle = p.c + '0.7)';
+    ctx.fill();
+    for (let j = i + 1; j < pts.length; j++) {
+      const q = pts[j];
+      const d = Math.hypot(p.x - q.x, p.y - q.y);
+      if (d < 120) {
+        ctx.beginPath();
+        ctx.moveTo(p.x, p.y);
+        ctx.lineTo(q.x, q.y);
+        ctx.strokeStyle = p.c + (0.12 * (1 - d / 120)) + ')';
+        ctx.lineWidth = 0.6;
+        ctx.stroke();
+      }
+    }
+  }
+  requestAnimationFrame(draw);
+}
+draw();
+
+// ── INTERSECTION OBSERVER ──
+const io = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const el = entry.target;
+      el.classList.add('visible');
+      if (el.classList.contains('skill-item')) {
+        const fill = el.querySelector('.skill-fill');
+        if (fill) fill.style.width = fill.dataset.pct + '%';
+      }
+    }
+  });
+}, { threshold: 0.15 });
+
+document.querySelectorAll(
+  '.section-label, .section-title, .skill-item, .chip, .exp-card, .proj-card, .edu-card, .lang-badge, .contact-item'
+).forEach(el => io.observe(el));
+
+// Stagger chip animations
+document.querySelectorAll('.chip').forEach((c, i) => {
+  c.style.transitionDelay = (i * 0.04) + 's';
+});
+</script>
+</body>
+</html>
